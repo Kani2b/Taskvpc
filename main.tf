@@ -23,13 +23,22 @@ resource "aws_subnet" "public_subnet2" {
  map_public_ip_on_launch = true
 }
 
-resource "aws_route_table" "custom_route_table" {
+resource "aws_internet_gateway" "gate" {
   vpc_id = aws_vpc.task_vpc.id
+}
+
+resource "aws_route_table" "RT" {
+  vpc_id = aws_vpc.task_vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.gate.id
+  }
 }
 
 resource "aws_route_table_association" "private_subnet_association" {
   subnet_id      = aws_subnet.private_subnet.id
-  route_table_id = aws_route_table.custom_route_table.id
+  route_table_id = aws_route_table.RT.id
 }
 
 resource "aws_security_group" "ec2_sg" {
